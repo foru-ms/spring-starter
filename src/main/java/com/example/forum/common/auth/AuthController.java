@@ -1,18 +1,18 @@
 package com.example.forum.common.auth;
 
+import com.example.forum.thread.Thread;
+import com.example.forum.thread.ThreadRepository;
+import com.example.forum.thread.dto.GetAllThreadResponseDto;
 import com.example.forum.user.User;
 import com.example.forum.user.UserRepository;
-import com.example.forum.user.dto.LoginRequestDto;
 import com.example.forum.user.dto.UserCreateRequestDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
@@ -22,8 +22,15 @@ import java.util.List;
 @Slf4j
 public class AuthController {
     private final UserRepository userRepository;
+    private final ThreadRepository threadRepository;
     @GetMapping
-    public String index() {
+    public String index(Model model, @AuthenticationPrincipal User user) {
+        GetAllThreadResponseDto allThreads = threadRepository.getAllThreads();
+        model.addAttribute("threads", allThreads.threads());
+        if (user != null) {
+            model.addAttribute("user", user);
+            model.addAttribute("thread", new Thread());
+        }
         return "index";
     }
 

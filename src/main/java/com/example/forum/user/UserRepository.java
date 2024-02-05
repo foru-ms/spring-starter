@@ -63,4 +63,13 @@ public class UserRepository {
                 .collectList()
                 .block();
     }
+
+    public User getUserById(String id) {
+        return webClient.get()
+                .uri("user/" + id)
+                .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).map(Exception::new))
+                .bodyToMono(User.class)
+                .block();
+    }
 }
