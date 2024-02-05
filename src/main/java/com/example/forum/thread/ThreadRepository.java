@@ -23,14 +23,24 @@ public class ThreadRepository {
                 .block();
     }
 
-    public String save(CreateThreadRequestDto thread) {
+    public Thread save(CreateThreadRequestDto thread) {
         return webClient.post()
                 .uri("thread")
                 .body(Mono.just(thread), CreateThreadRequestDto.class)
                 .retrieve()
                 .onStatus(HttpStatus.INTERNAL_SERVER_ERROR::equals, clientResponse -> clientResponse.bodyToMono(String.class).map(Exception::new))
                 .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).map(Exception::new))
-                .bodyToMono(String.class)
+                .bodyToMono(Thread.class)
+                .block();
+    }
+
+    public Thread getThreadById(String id) {
+        return webClient.get()
+                .uri("thread/" + id)
+                .retrieve()
+                .onStatus(HttpStatus.BAD_REQUEST::equals, clientResponse -> clientResponse.bodyToMono(String.class).map(Exception::new))
+                .onStatus(HttpStatus.INTERNAL_SERVER_ERROR::equals, clientResponse -> clientResponse.bodyToMono(String.class).map(Exception::new))
+                .bodyToMono(Thread.class)
                 .block();
     }
 }
