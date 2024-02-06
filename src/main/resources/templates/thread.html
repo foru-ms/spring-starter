@@ -133,19 +133,23 @@
             <p class="mt-4 text-gray-600 text-sm" th:text="${thread.body}">
             </p>
             <!--            Reply box/create post start -->
-            <div class="mt-8 flex items-start">
-              <div class="w-10 h-10 rounded-full flex-shrink-0">
-                <img class="w-full h-full object-cover object-center" th:src="@{/images/enrolled-student-8.png}"
-                     alt=""/>
+            <form th:action="@{/post}" th:object="${post}" method="post" sec:authorize="isFullyAuthenticated()">
+              <div class="mt-8 flex items-start flex-col">
+                <div class="w-10 h-10 rounded-full flex-shrink-0">
+                  <img class="w-full h-full object-cover object-center" th:src="@{/images/enrolled-student-8.png}"
+                       alt=""/>
+                </div>
+                <input hidden th:field="*{threadId}">
+                <textarea th:field="*{body}" th:placeholder="'Reply to' +  ${thread.getUser().getDisplayName() }+'\'s post'"
+                          class="ml-2 mb-2 pl-6 pt-2 bg-gray-100 w-full h-24 resize-none focus:outline-none focus:border-blue-400 border border-transparent text-gray-800"></textarea>
+                <button class="ml-2 bg-blue-700 text-sm text-white rounded hover:bg-blue-600 transition duration-150 ease-in-out py-2 px-6 sm:mt-0 mt-4" type="submit">Submit</button>
               </div>
-              <textarea th:placeholder="'Reply to' +  ${thread.getUser().getDisplayName() }+'\'s post'"
-                        class="ml-2 pl-6 pt-2 bg-gray-100 w-full h-24 resize-none focus:outline-none focus:border-blue-400 border border-transparent text-gray-800"></textarea>
-            </div>
+            </form>
             <!--            Reply box/create post end -->
             <!--            Comment section start-->
             <div class="my-8 text-gray-900 text-xl">Comments</div>
             <!--            Single comment start-->
-            <div>
+            <div th:if="${posts.size()>0}" th:each="post:${posts}" class="mb-3">
               <div class="flex items-center">
                 <div class="w-10 h-10 rounded-full flex-shrink-0">
                   <img class="w-full h-full object-cover object-center" th:src="@{/images/enrolled-student-8.png}"
@@ -153,18 +157,13 @@
                 </div>
                 <div class="ml-2 w-full">
                   <div class="flex items-center justify-between w-full">
-                    <h5 class="text-gray-800 text-sm">John Doe</h5>
-                    <p class="text-xs text-gray-600">3 hours ago</p>
+                    <h5 class="text-gray-800 text-sm" th:text="${post.user.displayName}"></h5>
+                    <p class="text-xs text-gray-600" th:text="${post.getCreatedAt().hour} + ' hours ago'"></p>
                   </div>
                   <p class="text-xs text-gray-600">Manager</p>
                 </div>
               </div>
-              <p class="mt-3 text-gray-600 text-sm">
-                Maecenas orci sapien, euismod vel enim in, vulputate
-                ullamcorper orci. Sed ullamcorper pretium magna, commodo
-                finibus urna mollis non. Nam id odio luctus, congue tellus in,
-                ultricies turpis. Interdum et malesuada
-              </p>
+              <p class="mt-3 text-gray-600 text-sm" th:text="${post.body}"></p>
               <div class="mt-3 flex items-center text-gray-600">
                 <a class="text-gray-600 text-xs cursor-pointer">Like</a>
                 <div class="w-1 h-1 bg-gray-500 rounded-full mx-2"></div>
