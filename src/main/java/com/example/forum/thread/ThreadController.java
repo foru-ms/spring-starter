@@ -1,5 +1,7 @@
 package com.example.forum.thread;
 
+import com.example.forum.post.Post;
+import com.example.forum.post.PostRepository;
 import com.example.forum.thread.dto.CreateThreadRequestDto;
 import com.example.forum.user.User;
 import com.example.forum.user.UserRepository;
@@ -21,6 +23,7 @@ import java.util.List;
 public class ThreadController {
     private final ThreadRepository threadService;
     private final UserRepository userService;
+    private final PostRepository postService;
     @PostMapping("/new-thread")
     public String newThread(@ModelAttribute Thread thread, Model model) {
         model.addAttribute("thread", thread);
@@ -31,14 +34,13 @@ public class ThreadController {
     public String createThread(@ModelAttribute Thread thread, @AuthenticationPrincipal User user, RedirectAttributes model) {
         List<String> tags = new ArrayList<>();
         tags.add("new post");
-        CreateThreadRequestDto createThreadRequestDto = new CreateThreadRequestDto(thread.getTitle(), user.getId(), thread.getBody(), tags, false, true);
+        CreateThreadRequestDto createThreadRequestDto = new CreateThreadRequestDto(thread.getTitle(), user.getId(), thread.getBody(), tags, false, false);
         Thread result = threadService.save(createThreadRequestDto);
         if (result != null) {
             model.addFlashAttribute("message", "Thread created successfully");
         } else {
             model.addFlashAttribute("message", "Error creating thread");
         }
-//FIXME: change this to thread details page
         return "index";
     }
 
@@ -46,7 +48,12 @@ public class ThreadController {
     public String getThread(@PathVariable String id, Model model) {
         Thread thread = threadService.getThreadById(id);
         User user = userService.getUserById(thread.getUserId());
+        List<Post> posts = postService.getPostsByThreadId(id);
         thread.setUser(user);
+        Post post = new Post();
+        post.setThreadId(id);
+        model.addAttribute("post", post);
+        model.addAttribute("posts", posts);
         model.addAttribute("thread", thread);
         return "thread";
     }
